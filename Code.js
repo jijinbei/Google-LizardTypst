@@ -12,7 +12,7 @@ function showSidebar() {
   SlidesApp.getUi().showSidebar(html);
 }
 
-// ToDo: 受け取ったPNG画像をスライドに貼る
+// Insert base64 encoded image data to slide (SVG isn't supported)
 function insertImageToSlide(base64Data) {
   var presentation = SlidesApp.getActivePresentation();
   var slide = presentation.getSelection().getCurrentPage();
