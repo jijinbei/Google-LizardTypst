@@ -6,7 +6,8 @@ function onOpen() {
 }
 
 function showSidebar() {
-  var html = HtmlService.createHtmlOutputFromFile("Sidebar")
+  var html = HtmlService.createTemplateFromFile("Sidebar")
+    .evaluate()
     .setTitle("LizardTypst")
     .setWidth(450);
   SlidesApp.getUi().showSidebar(html);
@@ -23,4 +24,8 @@ function insertImageToSlide(base64Data) {
   var blob = Utilities.newBlob(data, MimeType.PNG, "equation.png");
 
   slide.insertImage(blob);
+}
+
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }

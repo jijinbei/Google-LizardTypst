@@ -1,0 +1,102 @@
+<script type="module">
+    // 1. Import $typst from the All-in-One library
+    import { $typst } from "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-all-in-one.ts@0.6.0/dist/esm/index.js";
+
+    const statusEl = document.getElementById("status");
+    const input = document.getElementById("code");
+    const previewBox = document.getElementById("preview-box");
+    const insertBtn = document.getElementById("insertBtn");
+
+    const defaultCode = `#set page(
+width: auto,
+height: auto,
+margin: .2cm,
+fill: none,
+)
+$
+sum_(k=1)^n k = (n(n+1))/2
+$`;
+
+    function setStatus(msg, isError) {
+        statusEl.textContent = msg;
+        statusEl.className = isError ? "status-error" : "";
+    }
+
+    // 2. compile function
+    const compile = async (mainContent) => {
+        try {
+            const svg = await $typst.svg({ mainContent });
+            previewBox.innerHTML = svg;
+
+            // Enlarge the preview SVG to fit the container width
+            const svgElement = previewBox.querySelector("svg");
+            if (svgElement) {
+                svgElement.style.width = "100%";
+                svgElement.style.height = "auto";
+            }
+
+            setStatus("プレビューOK", false);
+            insertBtn.disabled = false;
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    // initialize
+    try {
+        input.addEventListener("input", () => compile(input.value));
+
+        input.value = defaultCode;
+        await compile(input.value);
+    } catch (e) {
+        setStatus("初期化エラー: " + e.message, true);
+    }
+
+    // 3. Image insertion process (SVG -> Canvas -> PNG -> GAS)
+    insertBtn.addEventListener("click", () => {
+        const svgElement = previewBox.querySelector("svg");
+        if (!svgElement) return;
+
+        insertBtn.disabled = true;
+        insertBtn.textContent = "Processing...";
+
+        const scale = 4; // High resolution
+        const viewBox = svgElement
+            .getAttribute("viewBox")
+            .split(" ")
+            .map(parseFloat);
+        const w = viewBox[2];
+        const h = viewBox[3];
+
+        const canvas = document.createElement("canvas");
+        canvas.width = w * scale;
+        canvas.height = h * scale;
+        const ctx = canvas.getContext("2d");
+
+        const s = new XMLSerializer().serializeToString(svgElement);
+        const encodedData = window.btoa(
+            unescape(encodeURIComponent(s)),
+        );
+        const img = new Image();
+
+        img.onload = () => {
+            ctx.scale(scale, scale);
+            ctx.drawImage(img, 0, 0);
+            const pngData = canvas.toDataURL("image/png");
+
+            google.script.run
+                .withSuccessHandler(() => {
+                    insertBtn.disabled = false;
+                    insertBtn.textContent = "Insert to Slide";
+                    setStatus("Insertion complete", false);
+                })
+                .withFailureHandler((e) => {
+                    alert("Error: " + e);
+                    insertBtn.disabled = false;
+                })
+                .insertImageToSlide(pngData);
+        };
+
+        img.src = "data:image/svg+xml;base64," + encodedData;
+    });
+</script>
