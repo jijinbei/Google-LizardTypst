@@ -7,6 +7,10 @@
     const previewBox = document.getElementById("preview-box");
     const insertBtn = document.getElementById("insertBtn");
     const errorLogEl = document.getElementById("error-log");
+    const historyList = document.getElementById("history-list");
+
+    const MAX_HISTORY_LENGTH = 20;
+    let equationHistory = [];
 
     const defaultCode = `#set page(
   width: auto,
@@ -118,11 +122,53 @@ $`;
         return `<pre style="white-space: pre-wrap;">${escapeHtml(diagnosticString)}</pre>`;
     }
 
+    function extractDollarContent(text) {
+        const match = text.match(/\$(.*?)\$/s);
+        return match ? match[1].trim() : null;
+    }
+
+    function renderHistory() {
+        historyList.innerHTML = "";
+        equationHistory.forEach((equation) => {
+            const li = document.createElement("li");
+            const dollarContent = extractDollarContent(equation);
+            li.textContent = dollarContent || equation;
+            li.dataset.equation = equation; // Store full equation
+            historyList.appendChild(li);
+        });
+    }
+
+    function loadHistory() {
+        const storedHistory = localStorage.getItem("equationHistory");
+        if (storedHistory) {
+            equationHistory = JSON.parse(storedHistory);
+            renderHistory();
+        }
+    }
+
+    function saveHistory(equation) {
+        // Avoid duplicates by removing existing entry first
+        equationHistory = equationHistory.filter((item) => item !== equation);
+        // Add to the beginning of the array
+        equationHistory.unshift(equation);
+        // Trim to max length
+        if (equationHistory.length > MAX_HISTORY_LENGTH) {
+            equationHistory = equationHistory.slice(0, MAX_HISTORY_LENGTH);
+        }
+        // Save to localStorage
+        localStorage.setItem(
+            "equationHistory",
+            JSON.stringify(equationHistory),
+        );
+        renderHistory();
+    }
+
     // initialize
     try {
         input.addEventListener("input", () => compile(input.value));
 
         input.value = defaultCode;
+        loadHistory();
         await compile(input.value);
     } catch (e) {
         setStatus("Initialization error: " + e.message, true);
@@ -132,6 +178,8 @@ $`;
     insertBtn.addEventListener("click", () => {
         const svgElement = previewBox.querySelector("svg");
         if (!svgElement) return;
+
+        saveHistory(input.value);
 
         insertBtn.disabled = true;
         insertBtn.textContent = "Processing...";
@@ -172,5 +220,29 @@ $`;
         };
 
         img.src = "data:image/svg+xml;base64," + encodedData;
+    });
+
+    historyList.addEventListener("mouseover", (e) => {
+        if (e.target.tagName === "LI") {
+            const equation = e.target.dataset.equation;
+            if (equation) {
+                compile(equation);
+            }
+        }
+    });
+
+    historyList.addEventListener("mouseout", (e) => {
+        // Revert to the current editor content for preview
+        compile(input.value);
+    });
+
+    historyList.addEventListener("click", (e) => {
+        if (e.target.tagName === "LI") {
+            const equation = e.target.dataset.equation;
+            if (equation) {
+                input.value = equation;
+                compile(equation); // Update preview as well
+            }
+        }
     });
 </script>

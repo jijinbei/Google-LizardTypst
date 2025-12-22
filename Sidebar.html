@@ -100,6 +100,36 @@
                 color: #d93025;
                 font-weight: bold;
             }
+
+            #history-container {
+                margin-top: 20px;
+            }
+            #history-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                max-height: 200px;
+                overflow-y: auto;
+                border: 1px solid #dadce0;
+                border-radius: 4px;
+                background-color: white;
+            }
+            #history-list li {
+                padding: 8px;
+                cursor: pointer;
+                border-bottom: 1px solid #eee;
+                font-family: "Roboto Mono", monospace;
+                font-size: 12px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            #history-list li:last-child {
+                border-bottom: none;
+            }
+            #history-list li:hover {
+                background-color: #f1f3f4;
+            }
         </style>
     </head>
     <body>
@@ -114,6 +144,11 @@
         <div id="error-log"></div>
 
         <button id="insertBtn" disabled>Insert</button>
+
+        <div id="history-container">
+            <h3>History</h3>
+            <ul id="history-list"></ul>
+        </div>
 
         <?!= include('Sidebar.js'); ?>
     </body>
