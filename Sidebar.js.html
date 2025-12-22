@@ -6,6 +6,7 @@
     const input = document.getElementById("code");
     const previewBox = document.getElementById("preview-box");
     const insertBtn = document.getElementById("insertBtn");
+    const errorLogEl = document.getElementById("error-log");
 
     const defaultCode = `#set page(
   width: auto,
@@ -27,6 +28,8 @@ $`;
         try {
             const svg = await $typst.svg({ mainContent });
             previewBox.innerHTML = svg;
+            errorLogEl.style.display = "none"; // Hide error log on success
+            errorLogEl.textContent = "";
 
             // Enlarge the preview SVG to fit the container width
             const svgElement = previewBox.querySelector("svg");
@@ -38,9 +41,82 @@ $`;
             setStatus("Preview updated", false);
             insertBtn.disabled = false;
         } catch (e) {
-            console.error(e);
+            console.error(e); // Keep this for debugging
+            setStatus("Compilation failed", true);
+            insertBtn.disabled = true;
+            previewBox.innerHTML = ""; // Clear preview on error
+
+            // Format and display the error
+            errorLogEl.style.display = "block";
+            let formattedError = "";
+            const isString = typeof e === "string" || e instanceof String;
+
+            if (isString) {
+                formattedError = parseDiagnostic(e);
+            } else if (e && e.message) {
+                // Handle standard Error objects, which might wrap the diagnostic string
+                formattedError = parseDiagnostic(e.message);
+            } else {
+                // Fallback for completely unknown errors
+                formattedError = "An unknown error occurred.";
+                try {
+                    formattedError += `<br><pre style="font-size: 10px; white-space: pre-wrap;">${escapeHtml(JSON.stringify(e, null, 2))}</pre>`;
+                } catch (stringifyError) {
+                    // Ignore if stringify fails
+                }
+            }
+            errorLogEl.innerHTML = formattedError;
         }
     };
+
+    function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return "";
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function parseDiagnostic(diagnosticString) {
+        if (
+            !diagnosticString ||
+            !diagnosticString.includes("SourceDiagnostic")
+        ) {
+            return `<pre style="white-space: pre-wrap;">${escapeHtml(diagnosticString)}</pre>`;
+        }
+
+        try {
+            const messageMatch = diagnosticString.match(/message:\s*"(.*?)"/s);
+            const hintsMatch = diagnosticString.match(/hints:\s*(\[.*?\])/s);
+
+            let errorContent = "";
+            if (messageMatch && messageMatch[1]) {
+                errorContent += `<div><span class="error-title">Error:</span> ${escapeHtml(messageMatch[1])}</div>`;
+            }
+
+            if (hintsMatch && hintsMatch[1]) {
+                const hintsArray = JSON.parse(hintsMatch[1]);
+                const hintsHtml = hintsArray
+                    .map(
+                        (hint) =>
+                            `<div style="padding-left: 15px;"><span class="hint-title">Hint:</span> ${escapeHtml(hint)}</div>`,
+                    )
+                    .join("");
+                errorContent += hintsHtml;
+            }
+
+            if (errorContent) {
+                return `<div style="margin-bottom: 10px;">${errorContent}</div>`;
+            }
+        } catch (parseError) {
+            console.error("Failed to parse diagnostic string:", parseError);
+        }
+
+        // Fallback for any failure
+        return `<pre style="white-space: pre-wrap;">${escapeHtml(diagnosticString)}</pre>`;
+    }
 
     // initialize
     try {
