@@ -1,5 +1,5 @@
 <script type="module">
-    // 1. Import $typst from the All-in-One library
+    // 1. import $typst from the all-in-one library
     import { $typst } from "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-all-in-one.ts@0.6.0/dist/esm/index.js";
 
     const statusEl = document.getElementById("status");
@@ -85,7 +85,7 @@ $`;
             google.script.run
                 .withSuccessHandler(() => {
                     insertBtn.disabled = false;
-                    insertBtn.textContent = "Insert to Slide";
+                    insertBtn.textContent = "Insert";
                     setStatus("Insertion complete", false);
                 })
                 .withFailureHandler((e) => {
