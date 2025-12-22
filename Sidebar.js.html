@@ -8,10 +8,12 @@
     const insertBtn = document.getElementById("insertBtn");
     const errorLogEl = document.getElementById("error-log");
     const historyList = document.getElementById("history-list");
+    const imageWidthInput = document.getElementById("image-width-input");
+    const widthUpBtn = document.getElementById("width-up-btn");
+    const widthDownBtn = document.getElementById("width-down-btn");
 
     const MAX_HISTORY_LENGTH = 20;
     let equationHistory = [];
-
     const defaultCode = `#set page(
   width: auto,
   height: auto,
@@ -184,13 +186,24 @@ $`;
         insertBtn.disabled = true;
         insertBtn.textContent = "Processing...";
 
-        const scale = 4; // High resolution
+        let desiredWidth = parseInt(imageWidthInput.value, 10);
+        if (isNaN(desiredWidth) || desiredWidth <= 0) {
+            desiredWidth = null;
+        }
+
         const viewBox = svgElement
             .getAttribute("viewBox")
             .split(" ")
             .map(parseFloat);
         const w = viewBox[2];
         const h = viewBox[3];
+
+        // Dynamically calculate scale for better resolution on larger images.
+        // Default to 4x if no width is given. Otherwise, aim for ~3px per point, but clamp between 1x and 10x.
+        const scale =
+            desiredWidth && w > 0
+                ? Math.min(10, Math.max(1, (desiredWidth * 3) / w))
+                : 4;
 
         const canvas = document.createElement("canvas");
         canvas.width = w * scale;
@@ -216,10 +229,18 @@ $`;
                     alert("Error: " + e);
                     insertBtn.disabled = false;
                 })
-                .insertImageToSlide(pngData);
+                .insertImageToSlide(pngData, desiredWidth);
         };
 
         img.src = "data:image/svg+xml;base64," + encodedData;
+    });
+
+    widthUpBtn.addEventListener("click", () => {
+        imageWidthInput.stepUp();
+    });
+
+    widthDownBtn.addEventListener("click", () => {
+        imageWidthInput.stepDown();
     });
 
     historyList.addEventListener("mouseover", (e) => {

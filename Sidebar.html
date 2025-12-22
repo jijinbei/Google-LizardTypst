@@ -130,6 +130,62 @@
             #history-list li:hover {
                 background-color: #f1f3f4;
             }
+
+            #size-control-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            #size-control-container label {
+                font-size: 14px;
+                white-space: nowrap;
+                margin-right: 10px;
+            }
+            .size-input-wrapper {
+                display: flex;
+                align-items: center;
+            }
+            #image-width-input {
+                width: 70px;
+                text-align: right;
+                border: 1px solid #dadce0;
+                border-radius: 4px;
+                padding: 6px;
+                font-size: 13px;
+                -moz-appearance: textfield; /* Firefox */
+            }
+            #image-width-input::-webkit-outer-spin-button,
+            #image-width-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .size-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 18px;
+                line-height: 1;
+                padding: 0;
+                background-color: #f1f3f4;
+                color: #202124;
+                border: 1px solid #dadce0;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+            .size-btn:hover {
+                background-color: #e8eaed;
+            }
+            #width-down-btn {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+                border-right: none;
+            }
+            #width-up-btn {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                margin-left: -1px; /* Overlap borders */
+            }
         </style>
     </head>
     <body>
@@ -142,6 +198,21 @@
         <div id="preview-box"></div>
 
         <div id="error-log"></div>
+
+        <div id="size-control-container">
+            <label for="image-width-input">Image Width (pt):</label>
+            <div class="size-input-wrapper">
+                <button id="width-down-btn" class="size-btn">-</button>
+                <input
+                    type="number"
+                    id="image-width-input"
+                    value="300"
+                    min="50"
+                    step="10"
+                />
+                <button id="width-up-btn" class="size-btn">+</button>
+            </div>
+        </div>
 
         <button id="insertBtn" disabled>Insert</button>
 
