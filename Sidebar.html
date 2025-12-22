@@ -14,7 +14,6 @@
                 font-size: 16px;
                 margin-bottom: 10px;
             }
-
             .editor-container {
                 position: relative;
                 margin-bottom: 12px;
@@ -30,7 +29,6 @@
                 box-sizing: border-box;
                 resize: vertical;
             }
-
             #preview-box {
                 background: white;
                 border: 1px solid #dadce0;
@@ -49,7 +47,6 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 background: white;
             }
-
             #error-log {
                 background-color: #fce8e6;
                 border: 1px solid #ea4335;
@@ -62,17 +59,14 @@
                 display: none; /* Hide by default */
                 white-space: pre-wrap; /* Preserve whitespace and wrap lines */
             }
-
             #error-log .error-title {
                 font-weight: bold;
                 color: #ea4335;
             }
-
             #error-log .hint-title {
                 font-weight: bold;
                 color: #185abc;
             }
-
             button {
                 width: 100%;
                 background-color: #1a73e8;
@@ -89,7 +83,6 @@
                 color: #80868b;
                 cursor: not-allowed;
             }
-
             #status {
                 font-size: 11px;
                 margin-bottom: 5px;
@@ -100,26 +93,31 @@
                 color: #d93025;
                 font-weight: bold;
             }
-
+            /* History Styles */
             #history-container {
-                margin-top: 20px;
+                margin-bottom: 12px;
+            }
+            #history-toggle {
+                cursor: pointer;
+                user-select: none;
             }
             #history-list {
                 list-style: none;
                 padding: 0;
                 margin: 0;
-                max-height: 200px;
+                max-height: 180px;
                 overflow-y: auto;
                 border: 1px solid #dadce0;
                 border-radius: 4px;
                 background-color: white;
             }
             #history-list li {
-                padding: 8px;
+                padding: 6px 8px;
                 cursor: pointer;
                 border-bottom: 1px solid #eee;
                 font-family: "Roboto Mono", monospace;
-                font-size: 12px;
+                font-size: 11px;
+                /* User request: smaller font */
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -130,7 +128,7 @@
             #history-list li:hover {
                 background-color: #f1f3f4;
             }
-
+            /* Size Control Styles */
             #size-control-container {
                 display: flex;
                 justify-content: space-between;
@@ -153,14 +151,13 @@
                 border-radius: 4px;
                 padding: 6px;
                 font-size: 13px;
-                -moz-appearance: textfield; /* Firefox */
+                -moz-appearance: textfield;
             }
             #image-width-input::-webkit-outer-spin-button,
             #image-width-input::-webkit-inner-spin-button {
                 -webkit-appearance: none;
                 margin: 0;
             }
-
             .size-btn {
                 width: 30px;
                 height: 30px;
@@ -184,21 +181,21 @@
             #width-up-btn {
                 border-top-left-radius: 0;
                 border-bottom-left-radius: 0;
-                margin-left: -1px; /* Overlap borders */
+                margin-left: -1px;
             }
         </style>
     </head>
     <body>
         <div id="status">Library loading...</div>
-
         <div class="editor-container">
             <textarea id="code" spellcheck="false"></textarea>
         </div>
-
+        <div id="history-container">
+            <h3 id="history-toggle">History ▼</h3>
+            <ul id="history-list" style="display: none"></ul>
+        </div>
         <div id="preview-box"></div>
-
         <div id="error-log"></div>
-
         <div id="size-control-container">
             <label for="image-width-input">Image Width (pt):</label>
             <div class="size-input-wrapper">
@@ -213,14 +210,7 @@
                 <button id="width-up-btn" class="size-btn">+</button>
             </div>
         </div>
-
         <button id="insertBtn" disabled>Insert</button>
-
-        <div id="history-container">
-            <h3>History</h3>
-            <ul id="history-list"></ul>
-        </div>
-
         <?!= include('Sidebar.js'); ?>
     </body>
 </html>

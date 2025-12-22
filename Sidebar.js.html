@@ -11,6 +11,7 @@
     const imageWidthInput = document.getElementById("image-width-input");
     const widthUpBtn = document.getElementById("width-up-btn");
     const widthDownBtn = document.getElementById("width-down-btn");
+    const historyToggle = document.getElementById("history-toggle");
 
     const MAX_HISTORY_LENGTH = 20;
     let equationHistory = [];
@@ -243,26 +244,41 @@ $`;
         imageWidthInput.stepDown();
     });
 
+    historyToggle.addEventListener("click", () => {
+        const isHidden = historyList.style.display === "none";
+        historyList.style.display = isHidden ? "block" : "none";
+        historyToggle.textContent = isHidden ? "History ▲" : "History ▼";
+    });
+
+    let hoverTimeout;
+    const HOVER_DELAY = 400; // 400ms delay
+
     historyList.addEventListener("mouseover", (e) => {
         if (e.target.tagName === "LI") {
-            const equation = e.target.dataset.equation;
-            if (equation) {
-                compile(equation);
-            }
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(() => {
+                const equation = e.target.dataset.equation;
+                if (equation) {
+                    compile(equation);
+                }
+            }, HOVER_DELAY);
         }
     });
 
-    historyList.addEventListener("mouseout", (e) => {
-        // Revert to the current editor content for preview
+    historyList.addEventListener("mouseleave", (e) => {
+        clearTimeout(hoverTimeout);
         compile(input.value);
     });
 
     historyList.addEventListener("click", (e) => {
+        clearTimeout(hoverTimeout);
         if (e.target.tagName === "LI") {
             const equation = e.target.dataset.equation;
             if (equation) {
                 input.value = equation;
-                compile(equation); // Update preview as well
+                compile(equation);
+                historyList.style.display = "none";
+                historyToggle.textContent = "History ▼";
             }
         }
     });
