@@ -2,5 +2,26 @@
   "timeZone": "Asia/Tokyo",
   "dependencies": {},
   "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "V8"
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.container.ui",
+    "https://www.googleapis.com/auth/presentations.currentonly"
+  ],
+  "addOns": {
+    "common": {
+      "name": "LizardTypst",
+      "logoUrl": "https://raw.githubusercontent.com/jijinbei/Google-LizardTypst/refs/heads/main/assets/icon.png",
+      "layoutProperties": {
+        "primaryColor": "#663399"
+      }
+    },
+    "slides": {
+      "homepageTrigger": {
+        "runFunction": "onHomepageOpened"
+      },
+      "onFileScopeGrantedTrigger": {
+        "runFunction": "onFileScopeGranted"
+      }
+    }
+  }
 }
