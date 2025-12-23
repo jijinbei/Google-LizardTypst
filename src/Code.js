@@ -1,6 +1,6 @@
 function onOpen() {
   SlidesApp.getUi()
-    .createMenu("LizardTypst")
+    .createAddonMenu()
     .addItem("Open Editor", "showSidebar")
     .addToUi();
 }
